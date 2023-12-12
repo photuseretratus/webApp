@@ -1,15 +1,20 @@
-package pt.photuseretratus.webApp;
+package pt.photuseretratus.webApp.apis;
 
 import com.google.gson.Gson;
+import lombok.extern.slf4j.Slf4j;
 import net.lingala.zip4j.ZipFile;
 import net.lingala.zip4j.model.ZipParameters;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import pt.photuseretratus.webApp.services.Email;
+import pt.photuseretratus.webApp.services.ImageKitIO;
+import pt.photuseretratus.webApp.services.Security;
+import pt.photuseretratus.webApp.dtos.FormLayout;
+import pt.photuseretratus.webApp.dtos.RequestToken;
+
 import java.io.File;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
@@ -19,6 +24,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 @RestController
+@Slf4j
 public class Controller {
 
     private HttpHeaders getHttpHeader(MediaType mediaType) {
@@ -35,10 +41,10 @@ public class Controller {
     public ResponseEntity<String> getUrl(@RequestBody RequestToken requestToken) {
         try {
             ImageKitIO imageKitIO = new ImageKitIO();
-            return new ResponseEntity<String>(imageKitIO.getURL(requestToken), getHttpHeader(MediaType.TEXT_PLAIN), HttpStatus.OK);
+            return new ResponseEntity<>(imageKitIO.getURL(requestToken), getHttpHeader(MediaType.TEXT_PLAIN), HttpStatus.OK);
         } catch (Exception e) {
-            e.printStackTrace();
-            return new ResponseEntity<String>("Error", getHttpHeader(MediaType.TEXT_PLAIN), HttpStatus.BAD_REQUEST);
+            log.error(e.toString());
+            return new ResponseEntity<>("Error", getHttpHeader(MediaType.TEXT_PLAIN), HttpStatus.BAD_REQUEST);
         }
     }
 
@@ -50,10 +56,10 @@ public class Controller {
     public ResponseEntity<List<String>> getFolder(@RequestBody RequestToken requestToken) {
         try {
             ImageKitIO imageKitIO = new ImageKitIO();
-            return new ResponseEntity<List<String>>(imageKitIO.getFolder(requestToken), getHttpHeader(MediaType.APPLICATION_JSON), HttpStatus.OK);
+            return new ResponseEntity<>(imageKitIO.getFolder(requestToken), getHttpHeader(MediaType.APPLICATION_JSON), HttpStatus.OK);
         } catch (Exception e) {
-            e.printStackTrace();
-            return new ResponseEntity<List<String>>(new ArrayList<String>(), getHttpHeader(MediaType.APPLICATION_JSON), HttpStatus.BAD_REQUEST);
+            log.error(e.toString());
+            return new ResponseEntity<>(new ArrayList<>(), getHttpHeader(MediaType.APPLICATION_JSON), HttpStatus.BAD_REQUEST);
         }
     }
 
@@ -62,14 +68,14 @@ public class Controller {
             path = "/imagekitio/getUserFolders",
             produces = MediaType.APPLICATION_JSON_VALUE,
             consumes = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<List<String>> getUserFolders(@RequestBody RequestToken requestToken) throws IOException {
+    public ResponseEntity<List<String>> getUserFolders(@RequestBody RequestToken requestToken) {
         try {
             requestToken.setPath("Reportagens/" + Security.getTokenSubject(requestToken.getToken()) + "/");
             ImageKitIO imageKitIO = new ImageKitIO();
-            return new ResponseEntity<List<String>>(imageKitIO.getFoldersNames(requestToken), getHttpHeader(MediaType.APPLICATION_JSON), HttpStatus.OK);
+            return new ResponseEntity<>(imageKitIO.getFoldersNames(requestToken), getHttpHeader(MediaType.APPLICATION_JSON), HttpStatus.OK);
         } catch (Exception e) {
-            e.printStackTrace();
-            return new ResponseEntity<List<String>>(new ArrayList<String>(), getHttpHeader(MediaType.APPLICATION_JSON), HttpStatus.BAD_REQUEST);
+            log.error(e.toString());
+            return new ResponseEntity<>(new ArrayList<>(), getHttpHeader(MediaType.APPLICATION_JSON), HttpStatus.BAD_REQUEST);
         }
     }
 
@@ -81,8 +87,8 @@ public class Controller {
     public ResponseEntity<String> Contact(@ModelAttribute FormLayout formLayout) {
 
         try {
-            ArrayList<File> filesToDelete = new ArrayList<File>();
-            eMail eMail = new eMail();
+            ArrayList<File> filesToDelete = new ArrayList<>();
+            Email eMail = new Email();
 
             eMail.setRecipientCC(formLayout.getEmail());
 
@@ -103,14 +109,14 @@ public class Controller {
             }
 
             eMail.addToBody("<p><b>Corpo da mensagem: </b>" + formLayout.getText() + "</p>");
-            if (formLayout.getFicheiro() != null) {
-                for (int i = 0; i < formLayout.getFicheiro().length; i++) {
+            if (formLayout.getFiles() != null) {
+                for (int i = 0; i < formLayout.getFiles().length; i++) {
 
                     ZipFile zipFile = new ZipFile("/var/www/html/photuseretratus.pt/uploads/" + formLayout.getSize() + ".zip");
                     ZipParameters zipParameters = new ZipParameters();
-                    zipParameters.setFileNameInZip(formLayout.getFicheiro()[i].getOriginalFilename());
-                    zipFile.addStream(formLayout.getFicheiro()[i].getInputStream(), zipParameters);
-                    eMail.addAtachment(zipFile.getFile());
+                    zipParameters.setFileNameInZip(formLayout.getFiles()[i].getOriginalFilename());
+                    zipFile.addStream(formLayout.getFiles()[i].getInputStream(), zipParameters);
+                    eMail.addAttachment(zipFile.getFile());
                     filesToDelete.add(zipFile.getFile());
 
                 }
@@ -123,11 +129,11 @@ public class Controller {
                 }
             }
         } catch (Exception e) {
-            e.printStackTrace();
-            return new ResponseEntity<String>("Erro a submeter por favor tente novamente", getHttpHeader(MediaType.TEXT_PLAIN), HttpStatus.BAD_REQUEST);
+            log.error(e.toString());
+            return new ResponseEntity<>("Erro a submeter por favor tente novamente", getHttpHeader(MediaType.TEXT_PLAIN), HttpStatus.BAD_REQUEST);
         }
 
-        return new ResponseEntity<String>("Enviado com sucesso", getHttpHeader(MediaType.TEXT_PLAIN), HttpStatus.OK);
+        return new ResponseEntity<>("Enviado com sucesso", getHttpHeader(MediaType.TEXT_PLAIN), HttpStatus.OK);
     }
 
     @CrossOrigin(origins = "*", allowedHeaders = "*")
@@ -142,13 +148,13 @@ public class Controller {
             Path path = Path.of("/var/www/html/photuseretratus.pt/contas/" + requestToken.getUser() + ".json");
             user = gson.fromJson(Security.decrypt(Files.readString(path)), RequestToken.class);
         } catch (Exception e) {
-            e.printStackTrace();
-            return new ResponseEntity<String>("Utilizador ou password errados", getHttpHeader(MediaType.TEXT_PLAIN), HttpStatus.NOT_FOUND);
+            log.error(e.toString());
+            return new ResponseEntity<>("Utilizador ou password errados", getHttpHeader(MediaType.TEXT_PLAIN), HttpStatus.NOT_FOUND);
         }
         if (user.getPass().equals(requestToken.getPass())) {
-            return new ResponseEntity<String>(Security.tokenBuilder(user), getHttpHeader(MediaType.TEXT_PLAIN), HttpStatus.OK);
+            return new ResponseEntity<>(Security.tokenBuilder(user), getHttpHeader(MediaType.TEXT_PLAIN), HttpStatus.OK);
         } else {
-            return new ResponseEntity<String>("Utilizador ou password errados", getHttpHeader(MediaType.TEXT_PLAIN), HttpStatus.UNAUTHORIZED);
+            return new ResponseEntity<>("Utilizador ou password errados", getHttpHeader(MediaType.TEXT_PLAIN), HttpStatus.UNAUTHORIZED);
         }
     }
 
@@ -165,13 +171,13 @@ public class Controller {
                 Files.write(path, Security.encrypt(gson.toJson(requestToken)).getBytes(StandardCharsets.UTF_8));
                 ProcessBuilder processBuilder = new ProcessBuilder();
                 processBuilder.command("sh", "/var/www/html/photuseretratus.pt/createFolder.sh", System.getenv("IMAGEKITIOPRIV"), requestToken.getUser()).start();
-                return new ResponseEntity<String>("Registado com sucesso", getHttpHeader(MediaType.TEXT_PLAIN), HttpStatus.OK);
+                return new ResponseEntity<>("Registado com sucesso", getHttpHeader(MediaType.TEXT_PLAIN), HttpStatus.OK);
             } else {
-                return new ResponseEntity<String>("Ação ilegal", getHttpHeader(MediaType.TEXT_PLAIN), HttpStatus.UNAUTHORIZED);
+                return new ResponseEntity<>("Ação ilegal", getHttpHeader(MediaType.TEXT_PLAIN), HttpStatus.UNAUTHORIZED);
             }
         } catch (Exception e) {
-            e.printStackTrace();
-            return new ResponseEntity<String>("Erro a registar", getHttpHeader(MediaType.TEXT_PLAIN), HttpStatus.BAD_REQUEST);
+            log.error(e.toString());
+            return new ResponseEntity<>("Erro a registar", getHttpHeader(MediaType.TEXT_PLAIN), HttpStatus.BAD_REQUEST);
         }
     }
 
@@ -183,10 +189,10 @@ public class Controller {
     public ResponseEntity<String> VerifyAdmin(@RequestBody RequestToken requestToken) {
 
         try {
-            return new ResponseEntity<String>(String.valueOf(Security.getTokenAdminStatus(requestToken.getToken())), getHttpHeader(MediaType.TEXT_PLAIN), HttpStatus.OK);
+            return new ResponseEntity<>(String.valueOf(Security.getTokenAdminStatus(requestToken.getToken())), getHttpHeader(MediaType.TEXT_PLAIN), HttpStatus.OK);
         } catch (Exception e) {
-            e.printStackTrace();
-            return new ResponseEntity<String>("Erro a verificar direitos de admin", getHttpHeader(MediaType.TEXT_PLAIN), HttpStatus.BAD_REQUEST);
+            log.error(e.toString());
+            return new ResponseEntity<>("Erro a verificar direitos de admin", getHttpHeader(MediaType.TEXT_PLAIN), HttpStatus.BAD_REQUEST);
         }
 
     }
