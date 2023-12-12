@@ -1,0 +1,8 @@
+version: '0.1'
+
+services:
+  webapp:
+    build: .
+    image: webapp
+    ports:
+      - "8080:8081"

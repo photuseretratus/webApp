@@ -1,8 +1,11 @@
-package pt.photuseretratus.webApp;
+package pt.photuseretratus.webApp.services;
 
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
+import org.springframework.stereotype.Component;
+import pt.photuseretratus.webApp.dtos.RequestToken;
+
 import javax.crypto.Cipher;
 import javax.crypto.spec.SecretKeySpec;
 import java.nio.charset.StandardCharsets;
@@ -10,6 +13,7 @@ import java.security.Key;
 import java.util.Base64;
 import java.util.Date;
 
+@Component
 public abstract class Security {
 
     private static final String ALGORITHM = "AES";

@@ -1,18 +1,19 @@
-package pt.photuseretratus.webApp;
+package pt.photuseretratus.webApp.services;
 
 import io.imagekit.sdk.ImageKit;
 import io.imagekit.sdk.config.Configuration;
 import io.imagekit.sdk.models.results.ResultList;
-
-import java.io.IOException;
+import org.springframework.stereotype.Component;
+import pt.photuseretratus.webApp.dtos.RequestToken;
 import java.util.*;
 
+@Component
 public class ImageKitIO {
 
     ImageKit imageKit;
     Configuration configuration;
 
-    public ImageKitIO() throws IOException {
+    public ImageKitIO() {
         this.imageKit = ImageKit.getInstance();
         configuration = new Configuration();
         configuration.setPrivateKey(System.getenv("IMAGEKITIOPRIV"));
@@ -23,7 +24,7 @@ public class ImageKitIO {
 
     public String getURL(RequestToken RequestToken) {
 
-        List<Map<String, String>> transformation = new ArrayList<Map<String, String>>();
+        List<Map<String, String>> transformation = new ArrayList<>();
         transformation.add(RequestToken.getTransformation());
 
         Map<String, Object> options = new HashMap<>();
@@ -44,15 +45,11 @@ public class ImageKitIO {
         ResultList resultList = imageKit.getFileList(options);
 
         List<Map<String, Object>> resultListMap = resultList.getMap();
-        Comparator<Map<String, Object>> mapComparator = new Comparator<Map<String, Object>>() {
-            public int compare(Map<String, Object> m1, Map<String, Object> m2) {
-                return m1.get("name").toString().compareTo(m2.get("name").toString());
-            }
-        };
+        Comparator<Map<String, Object>> mapComparator = Comparator.comparing(m -> m.get("name").toString());
 
         resultListMap.sort(mapComparator);
 
-        List<Map<String, String>> transformation = new ArrayList<Map<String, String>>();
+        List<Map<String, String>> transformation = new ArrayList<>();
         transformation.add(RequestToken.getTransformation());
         urlOptions.put("path", resultList.getResults().get(0).getFilePath());
         urlOptions.put("transformation", transformation);
