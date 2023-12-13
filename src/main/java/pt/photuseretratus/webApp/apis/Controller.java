@@ -10,13 +10,12 @@ import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import pt.photuseretratus.webApp.services.Email;
-import pt.photuseretratus.webApp.services.ImageKitIO;
+import pt.photuseretratus.webApp.services.ImageKitService;
 import pt.photuseretratus.webApp.services.Security;
 import pt.photuseretratus.webApp.dtos.FormLayout;
 import pt.photuseretratus.webApp.dtos.RequestToken;
 
 import java.io.File;
-import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -40,8 +39,8 @@ public class Controller {
             consumes = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<String> getUrl(@RequestBody RequestToken requestToken) {
         try {
-            ImageKitIO imageKitIO = new ImageKitIO();
-            return new ResponseEntity<>(imageKitIO.getURL(requestToken), getHttpHeader(MediaType.TEXT_PLAIN), HttpStatus.OK);
+            ImageKitService imageKitService = new ImageKitService();
+            return new ResponseEntity<>(imageKitService.getURL(requestToken), getHttpHeader(MediaType.TEXT_PLAIN), HttpStatus.OK);
         } catch (Exception e) {
             log.error(e.toString());
             return new ResponseEntity<>("Error", getHttpHeader(MediaType.TEXT_PLAIN), HttpStatus.BAD_REQUEST);
@@ -55,8 +54,8 @@ public class Controller {
             consumes = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<List<String>> getFolder(@RequestBody RequestToken requestToken) {
         try {
-            ImageKitIO imageKitIO = new ImageKitIO();
-            return new ResponseEntity<>(imageKitIO.getFolder(requestToken), getHttpHeader(MediaType.APPLICATION_JSON), HttpStatus.OK);
+            ImageKitService imageKitService = new ImageKitService();
+            return new ResponseEntity<>(imageKitService.getFolder(requestToken), getHttpHeader(MediaType.APPLICATION_JSON), HttpStatus.OK);
         } catch (Exception e) {
             log.error(e.toString());
             return new ResponseEntity<>(new ArrayList<>(), getHttpHeader(MediaType.APPLICATION_JSON), HttpStatus.BAD_REQUEST);
@@ -71,8 +70,8 @@ public class Controller {
     public ResponseEntity<List<String>> getUserFolders(@RequestBody RequestToken requestToken) {
         try {
             requestToken.setPath("Reportagens/" + Security.getTokenSubject(requestToken.getToken()) + "/");
-            ImageKitIO imageKitIO = new ImageKitIO();
-            return new ResponseEntity<>(imageKitIO.getFoldersNames(requestToken), getHttpHeader(MediaType.APPLICATION_JSON), HttpStatus.OK);
+            ImageKitService imageKitService = new ImageKitService();
+            return new ResponseEntity<>(imageKitService.getFoldersNames(requestToken), getHttpHeader(MediaType.APPLICATION_JSON), HttpStatus.OK);
         } catch (Exception e) {
             log.error(e.toString());
             return new ResponseEntity<>(new ArrayList<>(), getHttpHeader(MediaType.APPLICATION_JSON), HttpStatus.BAD_REQUEST);

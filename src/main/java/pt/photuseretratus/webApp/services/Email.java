@@ -33,7 +33,6 @@ public class Email {
 
         session = Session.getInstance(props, new javax.mail.Authenticator() {
             protected PasswordAuthentication getPasswordAuthentication() {
-                System.out.println();
                 return new PasswordAuthentication(email, System.getenv("PASSE_GOOGLE"));
             }
         });

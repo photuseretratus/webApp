@@ -2,6 +2,7 @@ version: '0.1'
 
 services:
   webapp:
+    container_name: "webApp"
     build: .
     image: webapp
     ports:
