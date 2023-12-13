@@ -34,13 +34,13 @@ public abstract class Security {
     }
 
     private static Key getKey(){
-        String secret = System.getenv("KEY");
+        String secret = System.getenv("CIPHER_KEY");
         byte[] secretValue = secret.getBytes(StandardCharsets.UTF_8);
         return new SecretKeySpec(secretValue, ALGORITHM);
     }
 
     private static String getSignature(){
-        return System.getenv("SIGN");
+        return System.getenv("SIGNATURE");
     }
 
     public static String tokenBuilder(RequestToken requestToken){

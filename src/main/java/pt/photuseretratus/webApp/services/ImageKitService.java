@@ -5,20 +5,21 @@ import io.imagekit.sdk.config.Configuration;
 import io.imagekit.sdk.models.results.ResultList;
 import org.springframework.stereotype.Component;
 import pt.photuseretratus.webApp.dtos.RequestToken;
+
 import java.util.*;
 
 @Component
-public class ImageKitIO {
+public class ImageKitService {
 
     ImageKit imageKit;
     Configuration configuration;
 
-    public ImageKitIO() {
-        this.imageKit = ImageKit.getInstance();
+    public ImageKitService() {
+        this.imageKit = io.imagekit.sdk.ImageKit.getInstance();
         configuration = new Configuration();
-        configuration.setPrivateKey(System.getenv("IMAGEKITIOPRIV"));
-        configuration.setPublicKey("public_TGL83sxiUWGZfYFL0MMz9r7AXTw=");
-        configuration.setUrlEndpoint("https://ik.imagekit.io/minecopre");
+        configuration.setPrivateKey(System.getenv("IMAGEKIT_PRIVATE_PASS"));
+        configuration.setPublicKey(System.getenv("IMAGEKIT_PUBLIC_PASS"));
+        configuration.setUrlEndpoint(System.getenv("IMAGEKIT_URL"));
         this.imageKit.setConfig(configuration);
     }
 
