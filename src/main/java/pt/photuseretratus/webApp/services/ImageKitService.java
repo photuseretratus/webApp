@@ -1,29 +1,31 @@
-package pt.photuseretratus.webApp;
+package pt.photuseretratus.webApp.services;
 
 import io.imagekit.sdk.ImageKit;
 import io.imagekit.sdk.config.Configuration;
 import io.imagekit.sdk.models.results.ResultList;
+import org.springframework.stereotype.Component;
+import pt.photuseretratus.webApp.dtos.RequestToken;
 
-import java.io.IOException;
 import java.util.*;
 
-public class ImageKitIO {
+@Component
+public class ImageKitService {
 
     ImageKit imageKit;
     Configuration configuration;
 
-    public ImageKitIO() throws IOException {
-        this.imageKit = ImageKit.getInstance();
+    public ImageKitService() {
+        this.imageKit = io.imagekit.sdk.ImageKit.getInstance();
         configuration = new Configuration();
-        configuration.setPrivateKey(System.getenv("IMAGEKITIOPRIV"));
-        configuration.setPublicKey("public_TGL83sxiUWGZfYFL0MMz9r7AXTw=");
-        configuration.setUrlEndpoint("https://ik.imagekit.io/minecopre");
+        configuration.setPrivateKey(System.getenv("IMAGEKIT_PRIVATE_PASS"));
+        configuration.setPublicKey(System.getenv("IMAGEKIT_PUBLIC_PASS"));
+        configuration.setUrlEndpoint(System.getenv("IMAGEKIT_URL"));
         this.imageKit.setConfig(configuration);
     }
 
     public String getURL(RequestToken RequestToken) {
 
-        List<Map<String, String>> transformation = new ArrayList<Map<String, String>>();
+        List<Map<String, String>> transformation = new ArrayList<>();
         transformation.add(RequestToken.getTransformation());
 
         Map<String, Object> options = new HashMap<>();
@@ -44,15 +46,11 @@ public class ImageKitIO {
         ResultList resultList = imageKit.getFileList(options);
 
         List<Map<String, Object>> resultListMap = resultList.getMap();
-        Comparator<Map<String, Object>> mapComparator = new Comparator<Map<String, Object>>() {
-            public int compare(Map<String, Object> m1, Map<String, Object> m2) {
-                return m1.get("name").toString().compareTo(m2.get("name").toString());
-            }
-        };
+        Comparator<Map<String, Object>> mapComparator = Comparator.comparing(m -> m.get("name").toString());
 
         resultListMap.sort(mapComparator);
 
-        List<Map<String, String>> transformation = new ArrayList<Map<String, String>>();
+        List<Map<String, String>> transformation = new ArrayList<>();
         transformation.add(RequestToken.getTransformation());
         urlOptions.put("path", resultList.getResults().get(0).getFilePath());
         urlOptions.put("transformation", transformation);
