@@ -1,4 +1,6 @@
-package pt.photuseretratus.webApp;
+package pt.photuseretratus.webApp.services;
+
+import org.springframework.stereotype.Component;
 
 import javax.mail.*;
 import javax.mail.internet.InternetAddress;
@@ -10,8 +12,10 @@ import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.util.Properties;
 
-public class eMail {
+@Component
+public class Email {
 
+    private static final String email = "photuseretratus@gmail.com";
     Properties props;
     Session session;
     String stringBody;
@@ -19,7 +23,7 @@ public class eMail {
     Message msg;
     Multipart multipart;
 
-    public eMail() throws MessagingException, UnsupportedEncodingException {
+    public Email() throws MessagingException, UnsupportedEncodingException {
 
         this.props = new Properties();
         props.put("mail.smtp.auth", "true");
@@ -29,15 +33,14 @@ public class eMail {
 
         session = Session.getInstance(props, new javax.mail.Authenticator() {
             protected PasswordAuthentication getPasswordAuthentication() {
-                System.out.println();
-                return new PasswordAuthentication("photuseretratus@gmail.com", System.getenv("PASSE_GOOGLE"));
+                return new PasswordAuthentication(email, System.getenv("PASSE_GOOGLE"));
             }
         });
 
         msg = new MimeMessage(session);
 
-        msg.setFrom(new InternetAddress("photuseretratus@gmail.com", "Formulário Site"));
-        msg.setRecipients(Message.RecipientType.TO, InternetAddress.parse("photuseretratus@gmail.com"));
+        msg.setFrom(new InternetAddress(email, "Formulário Site"));
+        msg.setRecipients(Message.RecipientType.TO, InternetAddress.parse(email));
         body = new MimeBodyPart();
         multipart = new MimeMultipart();
         stringBody = "";
@@ -45,14 +48,14 @@ public class eMail {
     }
 
     public void setRecipientCC(String CC) throws MessagingException {
-        msg.setRecipients(Message.RecipientType.CC,InternetAddress.parse(CC));
+        msg.setRecipients(Message.RecipientType.CC, InternetAddress.parse(CC));
     }
 
     public void setSubject(String subject) throws MessagingException {
         msg.setSubject(subject);
     }
 
-    public void setBodyIntroduction(String name, String email, int phone) throws MessagingException, IOException {
+    public void setBodyIntroduction(String name, String email, int phone) {
 
         addToBody("<p><b>Nome: </b>" + name + "</p>");
         addToBody("<p><b>Email: </b>" + email + "</p>");
@@ -60,11 +63,11 @@ public class eMail {
 
     }
 
-    public void addToBody(String body) throws MessagingException, IOException {
+    public void addToBody(String body) {
         stringBody += body;
     }
 
-    public void addAtachment(File file) throws MessagingException, IOException {
+    public void addAttachment(File file) throws MessagingException, IOException {
         MimeBodyPart attach = new MimeBodyPart();
         attach.attachFile(file);
         multipart.addBodyPart(attach);
@@ -75,21 +78,5 @@ public class eMail {
         multipart.addBodyPart(body);
         msg.setContent(multipart);
         Transport.send(msg);
-    }
-
-    public Properties getProps() {
-        return props;
-    }
-
-    public void setProps(Properties props) {
-        this.props = props;
-    }
-
-    public Session getSession() {
-        return session;
-    }
-
-    public void setSession(Session session) {
-        this.session = session;
     }
 }
