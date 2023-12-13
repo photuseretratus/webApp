@@ -7,3 +7,5 @@ services:
     image: webapp
     ports:
       - "8080:8081"
+    environment:
+      PASSE_GOOGLE
