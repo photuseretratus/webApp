@@ -2,10 +2,10 @@ version: '0.1'
 
 services:
   webapp:
-    container_name: "webApp"
+    platform: linux/arm64
     build: .
-    image: webapp
+    image: minecopre/webapp
     ports:
-      - "8080:8081"
-    environment:
-      PASSE_GOOGLE
+      - 8081:8081
+    volumes:
+      - /src/main/resources/:/webapp/resources
