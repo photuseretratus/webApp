@@ -9,3 +9,4 @@ services:
       - 8081:8081
     volumes:
       - /src/main/resources/:/webapp/resources
+      - /contas/:/webapp/contas
