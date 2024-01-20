@@ -1,11 +1,14 @@
 plugins {
-	id 'org.springframework.boot' version '2.5.4'
-	id 'io.spring.dependency-management' version '1.0.11.RELEASE'
+	id 'org.springframework.boot' version '3.2.0'
+	id 'io.spring.dependency-management' version "1.1.4"
 	id 'java'
 }
 
 group = 'pt.photuseretratus'
-sourceCompatibility = '11'
+
+java {
+	sourceCompatibility = '17'
+}
 
 repositories {
 	mavenCentral()
@@ -14,11 +17,16 @@ repositories {
 
 dependencies {
 	//SpringBoot
-	implementation 'org.springframework.boot:spring-boot-starter-web:2.6.6'
-	implementation 'org.springframework.boot:spring-boot-starter-mail:2.6.6'
-	implementation 'com.squareup.okhttp3:okhttp:4.9.3'
+	implementation 'org.springframework.boot:spring-boot-starter-web'
+	implementation 'org.springframework.boot:spring-boot-starter-mail'
+    implementation 'org.springframework.boot:spring-boot-starter-actuator'
+	implementation 'org.springframework:spring-context-support:6.1.2'
+	implementation 'com.squareup.okhttp3:okhttp:4.12.0'
+    developmentOnly 'org.springframework.boot:spring-boot-devtools'
+	//Mail
+	implementation 'jakarta.mail:jakarta.mail-api:2.1.2'
 	//Zip
-	implementation 'net.lingala.zip4j:zip4j:2.10.0'
+	implementation 'net.lingala.zip4j:zip4j:2.11.3'
 	//Imagekit io
 	implementation 'com.github.imagekit-developer:imagekit-java:1.0.3'
 	//GSON
@@ -30,6 +38,7 @@ dependencies {
 	//Logger
 	implementation 'org.apache.logging.log4j:log4j-core:2.18.0'
 	implementation 'org.apache.logging.log4j:log4j-api:2.18.0'
+	//lombok
 	implementation 'org.projectlombok:lombok:1.18.30'
     annotationProcessor 'org.projectlombok:lombok:1.18.30'
 
