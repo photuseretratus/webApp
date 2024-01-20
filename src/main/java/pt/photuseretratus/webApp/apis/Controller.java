@@ -86,7 +86,6 @@ public class Controller {
             consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public ResponseEntity<String> Contact(@ModelAttribute FormLayout formLayout) {
 
-        log.info(configuration.getImagekit().get("url"));
         try {
             email.sendEmail(formLayout);
         } catch (Exception e) {
