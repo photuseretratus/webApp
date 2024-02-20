@@ -28,7 +28,7 @@ dependencies {
 	//Zip
 	implementation 'net.lingala.zip4j:zip4j:2.11.3'
 	//Imagekit io
-	implementation 'com.github.imagekit-developer:imagekit-java:1.0.3'
+	implementation 'com.github.imagekit-developer:imagekit-java:2.0.1'
 	//GSON
 	implementation 'com.google.code.gson:gson:2.9.0'
 	//JWT

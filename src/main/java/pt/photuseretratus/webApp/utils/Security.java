@@ -1,12 +1,14 @@
-package pt.photuseretratus.webApp.services;
+package pt.photuseretratus.webApp.utils;
 
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
 import lombok.AllArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 import pt.photuseretratus.webApp.configuration.AppConfiguration;
 import pt.photuseretratus.webApp.dtos.RequestToken;
+import pt.photuseretratus.webApp.exceptions.SecurityLevelException;
 
 import javax.crypto.Cipher;
 import javax.crypto.spec.SecretKeySpec;
@@ -15,31 +17,39 @@ import java.security.Key;
 import java.util.Base64;
 import java.util.Date;
 
+
 @Component
 @AllArgsConstructor
+@Slf4j
 public class Security {
 
+    private static final String ALGORITHM = "AES";
     private AppConfiguration appConfiguration;
 
-    private static final String ALGORITHM = "AES";
-
-    public String encrypt(String pass) throws Exception {
+    public String encrypt(String pass) throws SecurityLevelException {
+        try {
         Cipher c = Cipher.getInstance(ALGORITHM);
         c.init(Cipher.ENCRYPT_MODE, getKey());
         byte[] encValue = c.doFinal(pass.getBytes());
         return Base64.getEncoder().encodeToString(encValue);
+        } catch (Exception e) {
+            throw new SecurityLevelException("Problem encrypting", e);
+        }
     }
 
-    public String decrypt(String pass) throws Exception {
-        Cipher c = Cipher.getInstance(ALGORITHM);
-        c.init(Cipher.DECRYPT_MODE, getKey());
-        byte[] decodedValue = Base64.getDecoder().decode(pass);
-        byte[] decValue = c.doFinal(decodedValue);
-        return new String(decValue);
+    public String decrypt(String pass) throws SecurityLevelException {
+        try {
+            Cipher c = Cipher.getInstance(ALGORITHM);
+            c.init(Cipher.DECRYPT_MODE, getKey());
+            byte[] decodedValue = Base64.getDecoder().decode(pass);
+            byte[] decValue = c.doFinal(decodedValue);
+            return new String(decValue);
+        } catch (Exception e) {
+            throw new SecurityLevelException("Problem decrypting", e);
+        }
     }
 
     private Key getKey() {
-        System.out.println(appConfiguration.getSecurity().get("cipher"));
         byte[] secretValue = appConfiguration.getSecurity().get("cipher").getBytes(StandardCharsets.UTF_8);
         return new SecretKeySpec(secretValue, ALGORITHM);
     }
