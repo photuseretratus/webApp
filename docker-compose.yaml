@@ -10,3 +10,4 @@ services:
     volumes:
       - /src/main/resources/:/webapp/resources
       - /contas/:/webapp/contas
+      - /tmpFiles/:/webapp/tmpFiles

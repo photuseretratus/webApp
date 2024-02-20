@@ -1,0 +1,1 @@
+docker buildx build -t build_stage . --no-cache --platform=linux/arm64 --target build_stage

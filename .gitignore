@@ -21,5 +21,5 @@ gradle-app.setting
 # JDT-specific (Eclipse Java Development Tools)
 .classpath
 
-#dockerbuild file
-dockerbuild.bat
+#application.yaml file
+application-local.yaml
