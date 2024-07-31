@@ -1,11 +1,11 @@
-FROM eclipse-temurin:11-jdk
-CMD ["./gradlew", "clean", "assemble", "bootRun"]
-COPY build/libs/webApp.jar app.jar
-ENV PASSE_GOOGLE ""
-ENV IMAGEKIT_PRIVATE_PASS ""
-ENV IMAGEKIT_PUBLIC_PASS "public_TGL83sxiUWGZfYFL0MMz9r7AXTw="
-ENV IMAGEKIT_URL "https://ik.imagekit.io/minecopre"
-ENV SIGNATURE ""
-ENV CIPHER_KEY ""
-CMD ["java", "-jar", "app.jar"]
-EXPOSE 8080
+FROM gradle:jdk17 as build_stage
+COPY --chown=gradle:gradle . /home/gradle/src
+WORKDIR /home/gradle/src
+RUN gradle build --no-daemon --stacktrace
+
+FROM eclipse-temurin:17-jdk as package
+RUN mkdir /webapp
+COPY --from=build_stage /home/gradle/src/build/libs/*.jar /webapp/webapp.jar
+EXPOSE 8081
+EXPOSE 587
+ENTRYPOINT ["java", "-jar", "/webapp/webapp.jar", "--spring.config.location=/webapp/resources/application.yaml"]

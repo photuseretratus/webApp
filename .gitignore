@@ -1,6 +1,7 @@
 .gradle
 **/build/
 !src/**/build/
+contas/
 
 # Ignore Gradle GUI config
 gradle-app.setting
@@ -20,5 +21,5 @@ gradle-app.setting
 # JDT-specific (Eclipse Java Development Tools)
 .classpath
 
-docker-compose.yaml
-
+#application.yaml file
+application-local.yaml

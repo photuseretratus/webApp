@@ -1,0 +1,34 @@
+spring:
+  servlet:
+    multipart:
+      enabled: true
+      max-file-size: 128MB
+      max-request-size: 128MB
+  profiles:
+    active: dev
+  mail:
+    host: "smtp.gmail.com"
+    port:
+    username:
+    password:
+    properties:
+      mail:
+        smtp:
+          auth: true
+          starttls:
+            enable: true
+            required: true
+server:
+  port: 8081
+config:
+  imagekit:
+    public:
+    private:
+    url:
+  security:
+    cipher:
+    signature:
+  database:
+    path:
+    uploadPath:
+    createFolder:
