@@ -1,13 +1,13 @@
-version: '0.1'
-
 services:
-  webapp:
-    platform: linux/arm64
+   webapp:
+    container_name: photusRetratusWebapp
+    platform: linux/amd64
     build: .
-    image: minecopre/webapp
+    image: webapp
+    logging:
+      driver: journald
     ports:
       - 8081:8081
     volumes:
-      - /src/main/resources/:/webapp/resources
-      - /contas/:/webapp/contas
-      - /tmpFiles/:/webapp/tmpFiles
+      - /var/www/photuseretratus/webapp/resources:/webapp/resources
+    restart: unless-stopped
